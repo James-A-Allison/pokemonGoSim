@@ -376,7 +376,8 @@ simulate_battle_timeline <- function(attacker, boss, max_time = 300, weather, fr
   time <- 0
   damage_done <- 0
   starting_hp <- boss$hp
-  browser()
+  # browser()
+  print("entered simulate_battle_timeline")
   while (
     attacker$hp > 0 &&
       boss$hp > 0 &&
