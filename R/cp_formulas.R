@@ -12,14 +12,15 @@ Attack_Formula <- function(Base_Attack, Attack_IV, CP_Multiplier) {
 # ---- Formulas ----
 CP_Formula <- function(
   pokemon,
-  base_stats,
-  levels,
-  level,
-  Attack_IV,
-  Defence_IV,
-  HP_IV
+  base_stats = base_stats,
+  levels = levels,
+  level = level,
+  CP_Multiplier = `CP Multiplier`,
+  Attack_IV = 15,
+  Defence_IV = 15,
+  HP_IV = 15
 ) {
-
+  # browser()
   base_stats_internal <- base_stats %>%
     filter(name == pokemon) %>%
     select(
@@ -30,12 +31,12 @@ CP_Formula <- function(
       Defence = `Defence Go`
     )
   
-  CP_Multiplier <- levels %>% 
-    filter(Level == level) %>%
-    select(`CP Multiplier`) %>%
-    pull()
+  # CP_Multiplier <- levels %>% 
+  #   filter(Level == level) %>%
+  #   select(`CP Multiplier`) %>%
+  #   pull()
   
-  req(nrow(base_stats_internal) == 1)
+  # req(nrow(base_stats_internal) == 1)
 
   floor(
     (((base_stats_internal$Attack + Attack_IV) *
@@ -54,6 +55,8 @@ HP_Formula <- function(Base_HP, HP_IV, CP_Multiplier) {
 # ---- Core logic ----
 CP_Finder <- function(
   pokemon,
+  base_stats,
+  levels = levels,
   target_CP,
   status = NULL,
   target_dust = NULL,
@@ -62,7 +65,7 @@ CP_Finder <- function(
   target_attack_IV = NULL,
   target_defence_IV = NULL
 ) {
-
+# browser()
   base_stats_internal <- base_stats %>%
     filter(name == pokemon) %>%
     select(
@@ -73,7 +76,7 @@ CP_Finder <- function(
       Defence = `Defence Go`
     )
 
-  req(nrow(base_stats_internal) == 1)
+  # req(nrow(base_stats_internal) == 1)
 
   levels_internal <- levels %>%
     mutate(
@@ -94,16 +97,18 @@ CP_Finder <- function(
     left_join(tibble(join = 1, HP_IV = 0:15)) %>%
     left_join(base_stats_internal %>% mutate(join = 1)) %>%
     select(-join) %>%
+    # rowwise() %>%
     mutate(
       CP = CP_Formula(
-        Attack,
-        Attack_IV,
-        Defence,
-        Def_IV,
-        HP,
-        HP_IV,
-        `CP Multiplier`,
-        Nerf
+        pokemon = pokemon,
+        base_stats = base_stats,
+        levels = levels,
+        level = Level,
+        Attack_IV = Attack_IV,
+        Defence_IV = Def_IV,
+        HP_IV = HP_IV,
+        CP_Multiplier = `CP Multiplier`
+        # Nerf
       ),
       Visible_HP = HP_Formula(
         Base_HP = HP,
