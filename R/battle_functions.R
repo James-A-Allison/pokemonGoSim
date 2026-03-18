@@ -383,7 +383,7 @@ boss_can_charge <- function(boss, time, BOSS_CHARGE_COOLDOWN = 2.5) {
 
 #' @export
 
-simulate_battle_timeline <- function(attacker, boss, max_time = 300, weather, friendship) {
+simulate_battle_timeline <- function(attacker, boss, max_time = 300, weather, friendship, party_size) {
   time <- 0
   damage_done <- 0
   starting_hp <- boss$hp
@@ -404,9 +404,9 @@ simulate_battle_timeline <- function(attacker, boss, max_time = 300, weather, fr
 if (attacker$next_action_time <= boss$next_action_time) {
 
   if (attacker$energy >= attacker$charged$energy) {
-    res <- do_charged_move(attacker, boss, time, weather, friendship)
+    res <- do_charged_move(attacker, boss, time, weather, friendship, party_size)
   } else {
-    res <- do_fast_move(attacker, boss, time, weather, friendship)
+    res <- do_fast_move(attacker, boss, time, weather, friendship, party_size)
   }
 
 } else {
