@@ -190,13 +190,24 @@ calc_damage <- function(
   
 #' @export
 
-party_power_gain <- function(fast_duration) {
-  # Niantic-style approximation
-  fast_duration * 10
+party_power_gain <- function(party_size) {
+
+  hits_required <- dplyr::case_when(
+    party_size == 2 ~ 9,
+    party_size == 3 ~ 6,
+    party_size == 4 ~ 4,
+    TRUE ~ Inf  # covers solo (0 or 1) → no gain
+  )
+
+  if (is.infinite(hits_required)) {
+    return(0)
+  }
+
+  100 / hits_required
 }
 
 #' @export
-  do_fast_move <- function(attacker, boss, time, weather, friendship) {
+do_fast_move <- function(attacker, boss, time, weather, friendship, party_size) {
   stab <- get_stab(
     move_type = attacker$fast$type,
     type1 = attacker$type1,
@@ -221,7 +232,7 @@ party_power_gain <- function(fast_duration) {
 
   attacker$party_power <- min(
     100,
-    attacker$party_power + party_power_gain(attacker$fast$duration)
+    attacker$party_power + party_power_gain(party_size)
   )
 
   attacker$next_action_time <- time + attacker$fast$duration
@@ -230,8 +241,8 @@ party_power_gain <- function(fast_duration) {
 }
   
 #' @export
-do_charged_move <- function(attacker, boss, time, weather, friendship, PARTY_POWER_MULT = 2) {
-  is_party <- attacker$party_power >= 100
+do_charged_move <- function(attacker, boss, time, weather, friendship, party_size, PARTY_POWER_MULT = 2) {
+  is_party <- (party_size > 1) && attacker$party_power >= 100
 
   mult <- if (is_party) PARTY_POWER_MULT else 1
   duration <- if (is_party) 0 else attacker$charged$duration
